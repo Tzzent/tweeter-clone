@@ -6,6 +6,16 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
+  theme: {
+    extend: {
+      backgroundImage: {
+        'logo-small': "url('/images/tweeter-small.svg')",
+        'logo': "url('/images/tweeter.svg')",
+      }
+    }
+  }
 }
 export default config

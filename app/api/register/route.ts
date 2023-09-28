@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import prisma from "@/libs/prismadb";
 
-export default async function POST(
+export async function POST(
   request: Request,
 ) {
   try {

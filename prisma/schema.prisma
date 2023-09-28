@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  coverImage     String?
+  bio            String?
+  hashedPassword String?
+  followerIds    String[]  @db.ObjectId
+  followers      User[]    @relation("UserFollows", fields: [followerIds], references: [id])
+  followingIds   String[]  @db.ObjectId
+  followings     User[]    @relation("UserFollows", fields: [followingIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts   Account[]
+  tweets     Tweet[]
+  retweetIds String[]   @db.ObjectId
+  retweets   Tweet[]    @relation("UsersRetweets", fields: [retweetIds], references: [id])
+  comments   Comment[]
+  bookmarks  Bookmark[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Tweet {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  body     String
+  image    String?
+  hasMedia Boolean
+
+  retweetedByIds String[] @db.ObjectId
+  retweetedBy    User[]   @relation("UsersRetweets", fields: [retweetedByIds], references: [id])
+
+  likedIds String[] @db.ObjectId
+  savedIds String[] @db.ObjectId
+
+  ownerId String @db.ObjectId
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  hashtagIds String[]  @db.ObjectId
+  hashtags   Hashtag[] @relation("TweetHashtag", fields: [hashtagIds], references: [id])
+
+  bookmarkIds String[]   @db.ObjectId
+  bookmarks   Bookmark[] @relation(fields: [bookmarkIds], references: [id])
+
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  body     String
+  image    String?
+  likedIds String[] @db.ObjectId
+  tweetId  String   @db.ObjectId
+  tweet    Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  authorId String   @db.ObjectId
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bookmark {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  tweetIds String[] @db.ObjectId
+  tweet    Tweet[]  @relation(fields: [tweetIds], references: [id])
+  ownerId  String   @db.ObjectId
+  owner    User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ownerId])
+}
+
+model Hashtag {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+
+  tweetIds String[] @db.ObjectId
+  tweets   Tweet[]  @relation("TweetHashtag", fields: [tweetIds], references: [id])
+
+  @@unique([name])
+}

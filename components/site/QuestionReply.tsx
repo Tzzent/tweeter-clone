@@ -29,6 +29,8 @@ export default function QuestionReply() {
         flex
         items-center
         ml-2
+        outline-none
+        focus:ring-0
         "
       >
         <BiWorld size={20} />

@@ -9,8 +9,13 @@ import Button from "../buttons/Button";
 import Image from "next/image";
 import QuestionReply from "./QuestionReply";
 import Card from "../Card";
+import useAuthFunction from "@/hooks/useAuthFunction";
 
 export default function Form() {
+  const {
+    loading,
+    secureFunction,
+  } = useAuthFunction();
   const [inputValue, setInputValue] = useState<string>('');
   const [image, setImage] = useState<File | null>(null);
 
@@ -42,15 +47,13 @@ export default function Form() {
   }, []);
 
   const handleOnTweet = useCallback(() => {
-    console.log(
-      {
-        description: inputValue,
-        image: image,
-      }
-    )
+    secureFunction(() => {
+      console.log('Hello!!')
+      console.log(loading);
+    });
   }, [
-    image,
-    inputValue,
+    loading,
+    secureFunction,
   ]);
 
   return (

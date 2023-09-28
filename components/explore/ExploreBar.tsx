@@ -19,7 +19,7 @@ export default function ExploreBar() {
       isActive: exploreState === ExploreState.TOP,
     },
     {
-      label: 'Lastest',
+      label: 'Latest',
       onClick: () => setExploreState(ExploreState.LASTEST),
       isActive: exploreState === ExploreState.LASTEST,
     },

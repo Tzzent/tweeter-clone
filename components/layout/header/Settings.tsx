@@ -42,6 +42,8 @@ export default function Settings() {
             flex
             items-center
             ml-2
+            outline-none
+            focus:ring-0
             "
           >
             <Avatar />

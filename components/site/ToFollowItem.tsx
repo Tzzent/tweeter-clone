@@ -6,6 +6,8 @@ import Link from "next/link";
 
 import Avatar from "../Avatar";
 import Button from "../buttons/Button";
+import useAuthFunction from "@/hooks/useAuthFunction";
+import { useCallback } from "react";
 
 interface ToFollowItemProps {
   coverVisible?: boolean,
@@ -14,6 +16,15 @@ interface ToFollowItemProps {
 export default function ToFollowItem({
   coverVisible,
 }: ToFollowItemProps) {
+  const {
+    loading,
+    secureFunction,
+  } = useAuthFunction();
+
+  const handleFollow = useCallback(() => {
+
+  }, []);
+
   return (
     <div
       className="
@@ -73,7 +84,7 @@ export default function ToFollowItem({
         <Button
           icon={MdPersonAdd}
           label="Follow"
-          onClick={() => { }}
+          onClick={() => secureFunction(handleFollow)}
         />
       </div>
       <div

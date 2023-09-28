@@ -11,8 +11,13 @@ import Image from "next/image";
 import Avatar from "../Avatar";
 import InputReply from "../inputs/InputReply";
 import Card from "../Card";
+import useAuthFunction from "@/hooks/useAuthFunction";
 
 export default function PostItem() {
+  const {
+    loading,
+    secureFunction,
+  } = useAuthFunction();
 
   const actions = useMemo(() => [
     {
@@ -116,6 +121,7 @@ export default function PostItem() {
         {actions.map((action, index) => (
           <div
             key={index}
+            onClick={() => secureFunction(action.onClick)}
             className="
             hover:bg-[#F2F2F2]
             px-3

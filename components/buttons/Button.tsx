@@ -5,6 +5,7 @@ import { IconType } from "react-icons";
 interface ButtonProps {
   label: string,
   icon?: IconType,
+  type?: 'button' | 'submit' | 'reset',
   onClick: () => void,
   className?: string,
 }
@@ -12,13 +13,17 @@ interface ButtonProps {
 export default function Button({
   label,
   icon: Icon,
+  type,
   onClick,
   className,
 }: ButtonProps) {
   return (
     <button
       onClick={onClick}
+      type={type}
       className={`
+      transition
+      duration-150
       bg-[#2F80ED]
       hover:bg-[#006eff]
       text-white
@@ -28,6 +33,7 @@ export default function Button({
       text-xs
       flex
       items-center
+      justify-center
       gap-2
       ${className}
       `}

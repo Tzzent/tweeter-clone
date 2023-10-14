@@ -2,14 +2,15 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { GrClose } from "react-icons/gr";
-import { Fragment } from "react";
+import { Fragment, useCallback, UIEvent, MouseEvent, ReactSVGElement } from "react";
 
 interface ModalProps {
-  isOpen?: boolean,
+  isOpen: boolean,
   onClose: () => void,
   title?: string,
   className?: string,
   children: React.ReactNode,
+  onScrollEnd?: () => void
 }
 
 export default function Modal({
@@ -18,7 +19,17 @@ export default function Modal({
   title,
   className,
   children,
+  onScrollEnd,
 }: ModalProps) {
+  const handleOnScroll = useCallback((ev: UIEvent<HTMLDivElement>) => {
+    const divElement = ev.currentTarget;
+    const isAtBottom = divElement.scrollTop + divElement.clientHeight === divElement.scrollHeight;
+
+    if (isAtBottom && onScrollEnd) {
+      onScrollEnd();
+    }
+  }, [onScrollEnd]);
+
   return (
     <Transition
       appear
@@ -29,7 +40,7 @@ export default function Modal({
       {/* Overlay */}
       <Dialog
         as="div"
-        className="relative z-30"
+        className="relative z-20"
         onClose={onClose}
       >
         <Transition.Child
@@ -119,6 +130,7 @@ export default function Modal({
 
                 {/* Body */}
                 <div
+                  onScroll={handleOnScroll}
                   className={`
                   mt-2
                   px-6

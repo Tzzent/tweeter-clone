@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 
-export default function UserHero() {
+interface UserHeroProps {
+  coverImage?: string,
+}
+
+export default function UserHero({
+  coverImage
+}: UserHeroProps) {
   return (
     <div
       className="
@@ -13,10 +19,12 @@ export default function UserHero() {
       "
     >
       <Image
-        src="/images/wp-test.jpg"
+        src={coverImage || "/images/placeholder-cover.jpg"}
         alt="Hero"
         fill
-        objectFit="cover"
+        priority
+        className="object-cover"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 640px, 1000px"
       />
     </div>
   )

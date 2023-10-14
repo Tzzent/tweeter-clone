@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 const config: Config = {
   content: [
@@ -15,6 +16,10 @@ const config: Config = {
         'logo-small': "url('/images/tweeter-small.svg')",
         'logo': "url('/images/tweeter.svg')",
       }
+    },
+    screens: {
+      'xs': '475px',
+      ...defaultTheme.screens,
     }
   }
 }

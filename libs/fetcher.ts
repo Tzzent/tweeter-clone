@@ -1,5 +1,9 @@
 import axios from "axios";
 
-export default async function fetcher(url: string) {
-  return axios.get(url).then((response) => response.data);
+export default function fetcher(endpoint: string) {
+  return (
+    axios.get(endpoint)
+      .then((response) => response.data)
+      .catch((err) => console.error(err))
+  );
 }

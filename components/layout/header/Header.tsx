@@ -1,16 +1,20 @@
 'use client';
 
-import Image from "next/image";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { AiFillHome } from "react-icons/ai";
 import { FaCompass } from "react-icons/fa";
 import { BsFillBookmarkFill } from "react-icons/bs";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 import NavItem from "./NavItem";
 import Settings from "./Settings";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
 export default function Header() {
+  const { data: currentUser, isLoading } = useCurrentUser();
+  const session = useSession();
 
   const pathname = usePathname();
 
@@ -20,21 +24,25 @@ export default function Header() {
       href: '/',
       isActive: pathname === '/',
       icon: AiFillHome,
+      isAllowed: true,
     },
     {
       label: 'Explore',
       href: '/explore',
       isActive: pathname === '/explore',
       icon: FaCompass,
+      isAllowed: true,
     },
     {
       label: 'Bookmarks',
       href: '/bookmarks',
       isActive: pathname === '/bookmarks',
       icon: BsFillBookmarkFill,
+      isAllowed: currentUser?.id
     }
   ], [
     pathname,
+    currentUser?.id,
   ]);
 
   return (
@@ -54,7 +62,8 @@ export default function Header() {
       "
     >
       {/* Logo */}
-      <div
+      <Link
+        href="/"
         className="
         bg-logo-small
         bg-no-repeat
@@ -87,13 +96,17 @@ export default function Header() {
         "
       >
         {routes.map((route, index) => (
-          <NavItem
-            key={index}
-            {...route}
-          />
-        ))}
+          route.isAllowed && (
+            <NavItem
+              key={index}
+              {...route}
+            />
+          )))}
       </nav>
-      <Settings />
+      <Settings
+        isLoading={isLoading}
+        currentUser={currentUser!}
+      />
     </div>
   )
 }

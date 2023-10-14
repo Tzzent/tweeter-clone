@@ -6,13 +6,13 @@ import useAuthModal from "./useAuthModal";
 
 export default function useAuthFunction() {
   const [loading, setLoading] = useState<boolean>(false);
-  const { data: session } = useSession();
+  const session = useSession();
   const { onOpen } = useAuthModal();
 
   const secureFunction = useCallback(async (cb: Function) => {
     setLoading(true);
 
-    if (!session) {
+    if (session?.status === 'unauthenticated') {
       toast('You need to authenticate!', {
         icon: '🔐',
         position: 'top-center'

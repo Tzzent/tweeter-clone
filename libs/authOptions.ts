@@ -1,3 +1,4 @@
+import { uniqueUsernameGenerator, Config } from "unique-username-generator";
 import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -21,39 +22,143 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: 'email', type: 'email' },
+        email: { label: 'email', type: 'text' },
         password: { label: 'password', type: 'password' },
       },
       authorize: async (credentials) => {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            throw { msg: 'Invalid credentials!', status: 400 }
-          }
-
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email,
-            }
-          });
-
-          if (!user || !user?.hashedPassword) {
-            throw { msg: 'Invalid credentials!', status: 400 }
-          }
-
-          const matchedPassword = await bcrypt.compare(
-            credentials.password,
-            user.hashedPassword,
-          );
-
-          if (!matchedPassword) {
-            throw { msg: 'Invalid credentials!', status: 400 }
-          }
-
-          return user;
-        } catch (err: any) {
-          throw new Error(err);
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Invalid credentials');
         }
+
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials.email,
+          }
+        });
+
+        if (!user || !user?.hashedPassword) {
+          throw new Error('Invalid credentials');
+        }
+
+        const matchedPassword = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword,
+        );
+
+        if (!matchedPassword) {
+          throw new Error('Invalid credentials');
+        }
+
+        return user;
       },
     }),
   ],
+  callbacks: {
+    async signIn({ user, account }) {
+      const {
+        name,
+        email,
+        image,
+      } = user!;
+
+      const {
+        type,
+        provider,
+        providerAccountId,
+        access_token,
+        expires_at,
+        token_type,
+        scope,
+        id_token,
+      } = account!;
+
+      if (!name || !email) return false;
+
+      const userExists = await prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+        include: {
+          accounts: true,
+        }
+      });
+
+      const sameProvider = userExists?.accounts.some((acc) => (
+        acc.provider === provider
+      ));
+
+      if (userExists && sameProvider) {
+        return !!userExists;
+      }
+
+      if (userExists && !sameProvider) {
+        await prisma.account.create({
+          data: {
+            type,
+            provider,
+            providerAccountId,
+            access_token,
+            expires_at,
+            token_type,
+            scope,
+            id_token,
+            userId: userExists.id,
+          }
+        });
+
+        return !!userExists;
+      }
+
+      const config: Config = { //-> Config to create a unique username
+        dictionaries: [name.split(' ')],
+        separator: '',
+        style: 'capital',
+        randomDigits: 4,
+      }
+
+      let username;
+      let usernameExists;
+
+      do {
+        username = uniqueUsernameGenerator(config);
+
+        usernameExists = await prisma.user.findFirst({
+          where: {
+            username: username,
+          }
+        });
+
+      } while (username.includes('Undefined') || usernameExists);
+
+      const userData = await prisma.user.create({
+        data: {
+          name,
+          username,
+          email,
+          image,
+        }
+      });
+
+      await prisma.account.create({
+        data: {
+          type,
+          provider,
+          providerAccountId,
+          access_token,
+          expires_at,
+          token_type,
+          scope,
+          id_token,
+          userId: userData.id,
+        }
+      });
+
+      return !!userData;
+    },
+  },
+  debug: process.env.NODE_ENV !== 'development',
+  session: {
+    strategy: 'jwt',
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };

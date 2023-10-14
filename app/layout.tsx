@@ -8,7 +8,7 @@ import ToasterContext from './context/ToasterContext'
 
 const inter = Noto_Sans({
   subsets: ['latin'],
-  weight: '400',
+  weight: ['400', '500', '600'],
 })
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   description: 'This tweeter clone was made by @Tzzent',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode

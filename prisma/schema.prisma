@@ -12,8 +12,9 @@ datasource db {
 
 model User {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  name           String?
-  email          String?   @unique
+  name           String
+  username       String    @unique
+  email          String    @unique
   emailVerified  DateTime?
   image          String?
   coverImage     String?
@@ -29,10 +30,9 @@ model User {
 
   accounts   Account[]
   tweets     Tweet[]
-  retweetIds String[]   @db.ObjectId
-  retweets   Tweet[]    @relation("UsersRetweets", fields: [retweetIds], references: [id])
+  retweetIds String[]  @db.ObjectId
+  retweets   Tweet[]   @relation("UsersRetweets", fields: [retweetIds], references: [id])
   comments   Comment[]
-  bookmarks  Bookmark[]
 }
 
 model Account {
@@ -54,11 +54,17 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+enum Visibility {
+  EVERYONE
+  FOLLOWING
+}
+
 model Tweet {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  body     String
-  image    String?
-  hasMedia Boolean
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  body  String
+  image String?
+
+  comments Comment[]
 
   retweetedByIds String[] @db.ObjectId
   retweetedBy    User[]   @relation("UsersRetweets", fields: [retweetedByIds], references: [id])
@@ -69,15 +75,13 @@ model Tweet {
   ownerId String @db.ObjectId
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  hashtagIds String[]  @db.ObjectId
-  hashtags   Hashtag[] @relation("TweetHashtag", fields: [hashtagIds], references: [id])
+  audience Visibility @default(EVERYONE)
 
-  bookmarkIds String[]   @db.ObjectId
-  bookmarks   Bookmark[] @relation(fields: [bookmarkIds], references: [id])
+  trendId String? @db.ObjectId
+  trend   Trend?  @relation(fields: [trendId], references: [id])
 
-  comments  Comment[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Comment {
@@ -94,25 +98,9 @@ model Comment {
   updatedAt DateTime @updatedAt
 }
 
-model Bookmark {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  tweetIds String[] @db.ObjectId
-  tweet    Tweet[]  @relation(fields: [tweetIds], references: [id])
-  ownerId  String   @db.ObjectId
-  owner    User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([ownerId])
-}
-
-model Hashtag {
+model Trend {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @unique
 
-  tweetIds String[] @db.ObjectId
-  tweets   Tweet[]  @relation("TweetHashtag", fields: [tweetIds], references: [id])
-
-  @@unique([name])
+  tweets Tweet[]
 }

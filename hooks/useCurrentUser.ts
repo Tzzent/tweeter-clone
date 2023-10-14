@@ -1,14 +1,22 @@
-import useSWR from "swr";
+import useSWR, { KeyedMutator } from "swr";
 
 import fetcher from "@/libs/fetcher";
+import { User } from "@prisma/client";
 
-export default function useCurrentUser() {
+interface UserHookResponse {
+  data: User | null,
+  error: any,
+  isLoading: boolean,
+  mutate: KeyedMutator<any>,
+}
+
+export default function useCurrentUser(): UserHookResponse {
   const {
     data,
     error,
     isLoading,
     mutate,
-  } = useSWR('/api/current', fetcher);
+  } = useSWR(`/api/user`, fetcher);
 
   return {
     data,

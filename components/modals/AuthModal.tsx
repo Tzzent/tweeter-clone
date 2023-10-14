@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { FaGoogle, FaGithub } from "react-icons/fa";
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
+import { toast } from "react-hot-toast";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import useAuthModal from "@/hooks/useAuthModal";
 import Input from "../inputs/Input";
@@ -11,22 +15,66 @@ import Button from "../buttons/Button";
 
 type Variant = 'LOGIN' | 'REGISTER';
 
-export default function AuthModal() {
+interface AuthModalProps {
+  isOpen?: boolean,
+  onClose?: () => void,
+}
+
+export default function AuthModal({
+  isOpen,
+  onClose,
+}: AuthModalProps) {
+  const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [variant, setVariant] = useState<Variant>('LOGIN');
-  const {
-    isOpen,
-    onClose,
-  } = useAuthModal();
+  const router = useRouter();
+
+  const { isOpen: isModalOpen, onClose: onCloseModal } = useAuthModal();
 
   const handleOnSubmit = (ev: FormEvent) => {
     ev.preventDefault();
+    setLoading(true);
 
-    console.log(name);
-    console.log(email);
-    console.log(password);
+    if (variant === 'LOGIN') {
+      signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+        .then((cb) => {
+          if (cb?.error) {
+            toast.error(cb.error);
+          }
+
+          if (cb?.ok && !cb?.error) {
+            (isOpen && onClose) ? onClose() : onCloseModal();
+            toast.success('Logged in successfully!');
+            router.refresh();
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+
+    if (variant === 'REGISTER') {
+      axios.post('/api/register', {
+        name,
+        email,
+        password,
+      })
+        .then((res) => {
+          (isOpen && onClose) ? onClose() : onCloseModal();
+          toast.success('You have successfully registered!');
+          signIn('credentials', {
+            email,
+            password,
+            redirect: false,
+          });
+        })
+        .catch((err) => toast.error(err?.response?.data))
+        .finally(() => setLoading(false));
+    }
   };
 
   const handleToggle = useCallback(() => {
@@ -37,10 +85,15 @@ export default function AuthModal() {
     return setVariant('LOGIN');
   }, [variant]);
 
+  const socialAction = useCallback((action: string) => {
+    setLoading(true);
+    signIn(action).finally(() => setLoading(false));
+  }, []);
+
   return (
     <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={isOpen || isModalOpen}
+      onClose={onCloseModal}
       title="Authentication"
       className="
       flex
@@ -59,7 +112,9 @@ export default function AuthModal() {
           alt="Logo"
           src="/images/tweeter.svg"
           fill
-          objectFit="contain"
+          priority
+          className="object-contain"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 640px, 1000px"
         />
       </div>
 
@@ -91,8 +146,8 @@ export default function AuthModal() {
         />
         <Button
           type="submit"
+          disabled={loading}
           label={variant === 'LOGIN' ? 'Sign In' : 'Sign Up'}
-          onClick={() => { }}
           className="text-base"
         />
       </form>
@@ -131,6 +186,7 @@ export default function AuthModal() {
         "
       >
         <div
+          onClick={() => socialAction('google')}
           className="
           transition
           hover:scale-105
@@ -146,6 +202,7 @@ export default function AuthModal() {
           <FaGoogle size={22} />
         </div>
         <div
+          onClick={() => socialAction('github')}
           className="
           transition
           hover:scale-105

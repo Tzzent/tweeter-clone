@@ -1,26 +1,33 @@
 'use client';
 
+import clsx from "clsx";
+
 interface CardProps {
   title?: string,
   children: React.ReactNode,
+  parentClassName?: string,
   className?: string,
 }
 
 export default function Card({
   title,
   children,
+  parentClassName,
   className,
 }: CardProps) {
   return (
     <div
-      className="
+      className={clsx(`
       bg-white
       py-4
       rounded-xl
       shadow-sm
       h-fit
       w-full
-      "
+      relative
+      `,
+        parentClassName
+      )}
     >
       {title && (
         <>
@@ -38,9 +45,9 @@ export default function Card({
         </>
       )}
       <div
-        className={`
-        ${className ? className : 'px-3'}
-        `}
+        className={clsx(
+          className ? className : 'px-3'
+        )}
       >
         {children}
       </div>

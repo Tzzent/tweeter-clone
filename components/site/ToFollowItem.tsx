@@ -3,63 +3,61 @@
 import Image from "next/image";
 import { MdPersonAdd } from "react-icons/md";
 import Link from "next/link";
+import { User } from "@prisma/client";
+import { FaUserEdit } from "react-icons/fa";
 
 import Avatar from "../Avatar";
 import Button from "../buttons/Button";
-import useAuthFunction from "@/hooks/useAuthFunction";
-import { useCallback } from "react";
+import useFollow from "@/hooks/useFollow";
 
 interface ToFollowItemProps {
+  user: User,
   coverVisible?: boolean,
+  sameUser?: boolean,
+  onOpenProfile?: () => void,
 }
 
 export default function ToFollowItem({
+  user,
   coverVisible,
+  sameUser,
+  onOpenProfile,
 }: ToFollowItemProps) {
-  const {
-    loading,
-    secureFunction,
-  } = useAuthFunction();
-
-  const handleFollow = useCallback(() => {
-
-  }, []);
+  const { hasFollow, toggleFollow } = useFollow(user.username);
 
   return (
     <div
       className="
       grid
       grid-cols-2
-      border-b
-      pb-5
-      last:border-none
+      items-start
       "
     >
+      {/* Head */}
       <div
         className="
         flex
-        items-center
+        flex-wrap
+        justify-between
+        gap-3
         col-span-2
-        space-x-2
         "
       >
         <div
           className="
           flex
           items-center
-          justify-start
           truncate
-          w-full
           "
         >
-          <Avatar />
+          <Avatar src={user?.image} />
           <div
             className="
             ml-3
             truncate
             "
           >
-            <Link href="/Mikael">
+            <Link href={`/${user.username}`}>
               <h3
                 className="
                 font-semibold
@@ -67,7 +65,7 @@ export default function ToFollowItem({
                 hover:underline
                 "
               >
-                Mikael Stanley
+                {user.name}
               </h3>
             </Link>
             <p
@@ -77,29 +75,46 @@ export default function ToFollowItem({
               truncate
               "
             >
-              230k followers
+              {user.followerIds.length} followers
             </p>
           </div>
         </div>
-        <Button
-          icon={MdPersonAdd}
-          label="Follow"
-          onClick={() => secureFunction(handleFollow)}
-        />
+        <div>
+          {sameUser ? (
+            <Button
+              onClick={onOpenProfile}
+              icon={FaUserEdit}
+              label="Edit profile"
+              outline
+            />
+          ) :
+            (<Button
+              icon={hasFollow ? null : MdPersonAdd}
+              label={hasFollow ? "Following" : "Follow"}
+              onClick={toggleFollow}
+            />
+            )}
+        </div>
       </div>
+
+      {/* Biography */}
       <div
         className="
         col-span-1
-        md:col-span-2
+        sm:col-span-2
         text-[#828282]
         text-sm
         mt-3
+        max-h-40
+        overflow-y-auto
         "
       >
         <p>
-          Photographer & Filmmaker based in Copenhagen, Denmark ✵ 🇩🇰
+          {user.bio}
         </p>
       </div>
+
+      {/* Cover Image */}
       {coverVisible && (
         <div
           className="
@@ -109,14 +124,16 @@ export default function ToFollowItem({
           overflow-hidden
           rounded-lg
           w-full
-          h-28
+          h-32
           "
         >
           <Image
-            src="/images/wp-test.jpg"
+            src={user.coverImage || '/images/placeholder-cover.jpg'}
             alt="Wallpaper"
             fill
-            objectFit="cover"
+            priority
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 640px, 1000px"
           />
         </div>
       )}

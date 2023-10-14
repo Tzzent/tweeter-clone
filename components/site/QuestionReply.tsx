@@ -3,24 +3,46 @@
 import {
   useMemo,
   Fragment,
+  useState,
+  useEffect,
 } from "react";
 import { BiWorld } from "react-icons/bi";
 import { MdGroup } from "react-icons/md";
 import { Popover, Transition } from "@headlessui/react";
+import { UseFormSetValue } from "react-hook-form";
+import { Visibility } from "@prisma/client";
 
-export default function QuestionReply() {
+import { FormTweetRequest } from "./Form";
+
+interface QuestionReplyProps {
+  setValue: UseFormSetValue<FormTweetRequest>,
+}
+
+export default function QuestionReply({
+  setValue,
+}: QuestionReplyProps) {
+  const [whoFollow, setWhoFollow] = useState<Visibility>('EVERYONE');
   const options = useMemo(() => [
     {
       label: 'Everyone',
       icon: BiWorld,
-      onClick: () => { },
+      onClick: () => setWhoFollow('EVERYONE'),
+      isActive: whoFollow === 'EVERYONE',
     },
     {
       label: 'People you follow',
       icon: MdGroup,
-      onClick: () => { },
+      onClick: () => setWhoFollow('FOLLOWING'),
+      isActive: whoFollow === 'FOLLOWING',
     }
-  ], []);
+  ], [whoFollow]);
+
+  useEffect(() => {
+    setValue('audience', whoFollow)
+  }, [
+    whoFollow,
+    setValue,
+  ]);
 
   return (
     <Popover className="relative select-none">
@@ -33,10 +55,21 @@ export default function QuestionReply() {
         focus:ring-0
         "
       >
-        <BiWorld size={20} />
-        <p className="ml-2">
-          Everyone can reply
-        </p>
+        {whoFollow === 'EVERYONE' ? (
+          <>
+            <BiWorld size={20} />
+            <p className="ml-2">
+              {options[0].label} can reply
+            </p>
+          </>
+        ) : (
+          <>
+            <MdGroup size={20} />
+            <p className="ml-2">
+              {options[1].label} can reply
+            </p>
+          </>
+        )}
       </Popover.Button>
 
       <Transition
@@ -69,26 +102,27 @@ export default function QuestionReply() {
             <p className="text-[#828282] text-xs">Choose who can reply this Tweet.</p>
           </div>
           {options.map((option, index) => (
-            <div
+            <Popover.Button
+              as="div"
               key={index}
               onClick={option.onClick}
-              className="
+              className={`
               flex
               items-center
               space-x-2
-              text-[#4F4F4F]
               hover:bg-[#F2F2F2]
               rounded-md
               py-2
               px-3
               cursor-pointer
-              "
+              ${option.isActive ? 'text-[#2F80ED]' : 'text-[#4F4F4F]'}
+              `}
             >
               <option.icon size={24} />
               <p className="truncate">
                 {option.label}
               </p>
-            </div>
+            </Popover.Button>
           ))}
         </Popover.Panel>
       </Transition>

@@ -1,10 +1,21 @@
-import Layout from "@/components/layout/Layout";
+'use client';
+
 import Form from "@/components/site/Form";
-import PostFeed from "@/components/site/PostFeed";
+import TweetFeed from "@/components/site/TweetFeed";
 import Trends4u from "@/components/site/Trends4u";
 import WhoToFollow from "@/components/site/WhoToFollow";
+import useTweets from "@/hooks/useTweets";
 
 export default function HomePage() {
+  const {
+    data,
+    hasMore,
+    isLoading,
+    isValidating,
+    setSize,
+    size,
+  } = useTweets();
+
   return (
     <div
       className="
@@ -14,7 +25,7 @@ export default function HomePage() {
       w-full
       max-w-7xl
       mx-auto
-      mt-5
+      mt-4
       "
     >
       <div
@@ -28,7 +39,13 @@ export default function HomePage() {
         "
       >
         <Form />
-        <PostFeed />
+        <TweetFeed
+          onScrollEnd={() => setSize(size + 1)}
+          data={data}
+          hasMore={hasMore}
+          isLoading={isLoading}
+          isValidating={isValidating}
+        />
       </div>
       <div
         className="
@@ -38,6 +55,9 @@ export default function HomePage() {
         px-3
         col-span-3
         lg:col-span-1
+        top-16
+        h-fit
+        mt-7
         "
       >
         <Trends4u />

@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 interface AvatarProps {
-  src?: string,
+  src?: string | null,
   hasBorder?: boolean,
   medium?: boolean,
 }
@@ -19,7 +19,6 @@ export default function Avatar({
       rounded-xl
       overflow-hidden
       flex-shrink-0
-      inline-block
       relative
       ${medium ? 'w-28 h-28' : 'w-9 h-9'}
       ${medium && 'shadow-sm'}

@@ -6,29 +6,41 @@
 
 <div align="center">
   <h3>
-    <!-- <a target="_blank" href="https://chat-group-dc.vercel.app/channels">
+    <a target="_blank" href="https://tweeter-clone-psi.vercel.app/">
       Demo 🌐
-    </a> -->
-    Building...
+    </a>
   </h3>
 </div>
 
-Building...
+This application was made with the nextjs framework, it fulfills most of the functions of the old Twitter.
+
+Please contact me if there are any errors.
 
 ## Characteristics
 
-Building...
+- Responsive design
+- Authentication implemented
+- You can tweet with a #hashtag only
+- You can tweet with an image, retweet, like, save
+- You can comment with an image, like the comment
+- You can follow a user
+- Edit your profile
+- Infinite scroll implemented
+- Manners implemented
+- Filter tweets in the explorer
 
 ## Screenshots
 
 🖥️ Desktop <br>
 
-Building...
+![Tweeter-Desk2](https://github.com/Tzzent/tweeter-clone/assets/86677547/922760ae-1de8-4e1c-a0c1-ddf2f3fbe8b5)
+![Tweeter-Desk1](https://github.com/Tzzent/tweeter-clone/assets/86677547/5ba4a1f5-7817-44e8-aa08-6ce251a8ed91)
 
 <br>
 📲 Mobile <br><br>
 
-Building...
+![Tweeter-Mob2](https://github.com/Tzzent/tweeter-clone/assets/86677547/f02c1b66-585c-4960-9e17-5580b0b57557)
+![Tweeter-Mob1](https://github.com/Tzzent/tweeter-clone/assets/86677547/c9a3d94e-7fd2-4fc6-8dd2-c44e0915211c)
 
 ## Contact 🗣️
 

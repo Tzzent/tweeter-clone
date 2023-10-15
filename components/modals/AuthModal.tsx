@@ -51,7 +51,7 @@ export default function AuthModal({
           if (cb?.ok && !cb?.error) {
             (isOpen && onClose) ? onClose() : onCloseModal();
             toast.success('Logged in successfully!');
-            router.refresh();
+            window.location.reload();
           }
         })
         .finally(() => setLoading(false));
@@ -71,6 +71,7 @@ export default function AuthModal({
             password,
             redirect: false,
           });
+          window.location.reload();
         })
         .catch((err) => toast.error(err?.response?.data))
         .finally(() => setLoading(false));

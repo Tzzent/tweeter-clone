@@ -1,22 +1,24 @@
 'use client';
 
+import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { AiFillHome } from "react-icons/ai";
 import { FaCompass } from "react-icons/fa";
 import { BsFillBookmarkFill } from "react-icons/bs";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
+import { ScaleLoader } from "react-spinners";
+import { AiOutlineLock } from "react-icons/ai";
 
 import NavItem from "./NavItem";
 import Settings from "./Settings";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import Button from "@/components/buttons/Button";
+import useAuthModal from "@/hooks/useAuthModal";
 
 export default function Header() {
   const { data: currentUser, isLoading } = useCurrentUser();
-  const session = useSession();
-
   const pathname = usePathname();
+  const authModal = useAuthModal();
 
   const routes = useMemo(() => [
     {
@@ -103,10 +105,19 @@ export default function Header() {
             />
           )))}
       </nav>
-      <Settings
-        isLoading={isLoading}
-        currentUser={currentUser!}
-      />
+      <div>
+        {isLoading ? (
+          <ScaleLoader color="#2F80ED" />
+        ) : (!isLoading && currentUser) ? (
+          <Settings currentUser={currentUser} />
+        ) : (
+          <Button
+            icon={AiOutlineLock}
+            label="Sign in"
+            onClick={() => authModal.onOpen()}
+          />
+        )}
+      </div>
     </div>
   )
 }

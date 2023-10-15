@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { UIEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { User } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -83,6 +83,35 @@ export default function ExplorePage() {
     searchValue,
     router,
   ]);
+
+  const handleOnScroll = useCallback(() => {
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+
+    const documentHeight = document.documentElement.scrollHeight;
+    const windowHeight = window.innerHeight;
+
+    if (
+      (documentHeight - scrollPosition === windowHeight) &&
+      !isValidating &&
+      hasMore
+    ) {
+      setSize(size + 1);
+    }
+  }, [
+    isValidating,
+    hasMore,
+    setSize,
+    size,
+  ]);
+
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleOnScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleOnScroll);
+    };
+  }, [handleOnScroll]);
 
   useEffect(() => updateUrl(), [updateUrl]);
 

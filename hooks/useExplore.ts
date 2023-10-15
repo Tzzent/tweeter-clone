@@ -30,7 +30,9 @@ export default function useExplore(
       return null;
     }
 
-    return `/api/explore/${explore}?search=${search}&page=${pageIdx}&limit=3`;
+    const limit = explore === 'People' ? 10 : 3;
+
+    return `/api/explore/${explore}?search=${search}&page=${pageIdx}&limit=${limit}}`;
   };
 
   const {

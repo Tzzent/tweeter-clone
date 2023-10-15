@@ -1,12 +1,10 @@
 'use client';
 
 import { toast } from "react-hot-toast";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { BiSolidUserCircle } from "react-icons/bi";
-import { MdGroup, MdSettings } from "react-icons/md";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import { BsFillCaretLeftFill } from "react-icons/bs";
-import { AiOutlineLock } from "react-icons/ai";
 import {
   useMemo,
   Fragment,
@@ -17,29 +15,22 @@ import { User } from "@prisma/client";
 
 import Avatar from "../../Avatar";
 import SettingsItem from "./SettingsItem";
-import Button from "@/components/buttons/Button";
-import useAuthModal from "@/hooks/useAuthModal";
 import { useRouter } from "next/navigation";
 
 interface SettingsProps {
   currentUser: User,
-  isLoading: boolean,
 }
 
 export default function Settings({
   currentUser,
-  isLoading,
 }: SettingsProps) {
-  const session = useSession();
   const router = useRouter();
-
-  const authModal = useAuthModal();
 
   const items = useMemo(() => [
     {
       label: 'My Profile',
       icon: BiSolidUserCircle,
-      onClick: () => router.push(`/${currentUser?.username}`),
+      onClick: () => router.push(`/${currentUser.username}`),
     },
     // {
     //   label: 'Group Chat',
@@ -52,7 +43,7 @@ export default function Settings({
     //   onClick: () => { },
     // }
   ], [
-    currentUser?.username,
+    currentUser.username,
     router,
   ]);
 
@@ -61,20 +52,6 @@ export default function Settings({
       .then((cb) => toast.success('You have signed out!'))
       .catch((err) => toast.error('Something went wrong!'))
   }, []);
-
-  if (session.status === 'unauthenticated') {
-    return (
-      <Button
-        icon={AiOutlineLock}
-        label="Sign in"
-        onClick={() => authModal.onOpen()}
-      />
-    )
-  }
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <>
@@ -90,7 +67,7 @@ export default function Settings({
               focus:ring-0
               "
             >
-              <Avatar src={currentUser?.image} />
+              <Avatar src={currentUser.image} />
               <div
                 className="
                 ml-4
@@ -103,7 +80,7 @@ export default function Settings({
                 "
               >
                 <span className="text-sm">
-                  {currentUser?.name}
+                  {currentUser.name}
                 </span>
                 <BsFillCaretLeftFill
                   size={16}

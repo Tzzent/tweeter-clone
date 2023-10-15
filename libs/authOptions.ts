@@ -55,43 +55,91 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      const {
-        name,
-        email,
-        image,
-      } = user!;
+      try {
+        const {
+          name,
+          email,
+          image,
+        } = user!;
 
-      const {
-        type,
-        provider,
-        providerAccountId,
-        access_token,
-        expires_at,
-        token_type,
-        scope,
-        id_token,
-      } = account!;
+        const {
+          type,
+          provider,
+          providerAccountId,
+          access_token,
+          expires_at,
+          token_type,
+          scope,
+          id_token,
+        } = account!;
 
-      if (!name || !email) return false;
+        if (!name || !email) return false;
 
-      const userExists = await prisma.user.findUnique({
-        where: {
-          email: email,
-        },
-        include: {
-          accounts: true,
+        const userExists = await prisma.user.findUnique({
+          where: {
+            email: email,
+          },
+          include: {
+            accounts: true,
+          }
+        });
+
+        const sameProvider = userExists?.accounts.some((acc) => (
+          acc.provider === provider
+        ));
+
+        if (userExists && sameProvider) {
+          return !!userExists;
         }
-      });
 
-      const sameProvider = userExists?.accounts.some((acc) => (
-        acc.provider === provider
-      ));
+        if (userExists && !sameProvider) {
+          await prisma.account.create({
+            data: {
+              type,
+              provider,
+              providerAccountId,
+              access_token,
+              expires_at,
+              token_type,
+              scope,
+              id_token,
+              userId: userExists.id,
+            }
+          });
 
-      if (userExists && sameProvider) {
-        return !!userExists;
-      }
+          return !!userExists;
+        }
 
-      if (userExists && !sameProvider) {
+        const config: Config = { //-> Config to create a unique username
+          dictionaries: [name.split(' ')],
+          separator: '',
+          style: 'capital',
+          randomDigits: 4,
+        }
+
+        let username;
+        let usernameExists;
+
+        do {
+          username = uniqueUsernameGenerator(config);
+
+          usernameExists = await prisma.user.findFirst({
+            where: {
+              username: username,
+            }
+          });
+
+        } while (username.includes('Undefined') || usernameExists);
+
+        const userData = await prisma.user.create({
+          data: {
+            name,
+            username,
+            email,
+            image,
+          }
+        });
+
         await prisma.account.create({
           data: {
             type,
@@ -102,58 +150,15 @@ export const authOptions: NextAuthOptions = {
             token_type,
             scope,
             id_token,
-            userId: userExists.id,
+            userId: userData.id,
           }
         });
 
-        return !!userExists;
+        return !!userData;
+      } catch (error) {
+        console.error('Error during signIn', error);
+        return false;
       }
-
-      const config: Config = { //-> Config to create a unique username
-        dictionaries: [name.split(' ')],
-        separator: '',
-        style: 'capital',
-        randomDigits: 4,
-      }
-
-      let username;
-      let usernameExists;
-
-      do {
-        username = uniqueUsernameGenerator(config);
-
-        usernameExists = await prisma.user.findFirst({
-          where: {
-            username: username,
-          }
-        });
-
-      } while (username.includes('Undefined') || usernameExists);
-
-      const userData = await prisma.user.create({
-        data: {
-          name,
-          username,
-          email,
-          image,
-        }
-      });
-
-      await prisma.account.create({
-        data: {
-          type,
-          provider,
-          providerAccountId,
-          access_token,
-          expires_at,
-          token_type,
-          scope,
-          id_token,
-          userId: userData.id,
-        }
-      });
-
-      return !!userData;
     },
   },
   debug: process.env.NODE_ENV !== 'development',

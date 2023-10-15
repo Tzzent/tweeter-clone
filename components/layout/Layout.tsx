@@ -1,3 +1,5 @@
+'use client';
+
 import AuthModal from "../modals/AuthModal";
 import Footer from "./Footer";
 import Header from "./header/Header";

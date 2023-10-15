@@ -26,7 +26,7 @@ Please contact me if there are any errors.
 - You can follow a user
 - Edit your profile
 - Infinite scroll implemented
-- Manners implemented
+- Modals implemented
 - Filter tweets in the explorer
 
 ## Screenshots

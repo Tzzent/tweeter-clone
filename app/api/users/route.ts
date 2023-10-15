@@ -33,7 +33,7 @@ export async function GET(
     });
 
     return NextResponse.json(users);
-    
+
   } catch (err: any) {
     return new NextResponse(err?.msg || 'Internal Error', {
       status: err?.status || 500

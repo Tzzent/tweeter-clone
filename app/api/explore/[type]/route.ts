@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Tweet, User } from "@prisma/client";
 
 import prisma from "@/libs/prismadb";
+import getCurrentUser from "@/app/actions/getCurrentUser";
 
 interface IParams {
   type: 'top' | 'latest' | 'people' | 'media',
@@ -14,6 +15,7 @@ export async function GET(
     params: IParams
   }) {
   try {
+    const currentUser = await getCurrentUser();
     const searchParams = request.nextUrl.searchParams;
 
     const type = params.type.toLowerCase();
@@ -43,15 +45,12 @@ export async function GET(
             },
             owner: true,
           },
+          orderBy: {
+            likedIds: 'desc',
+          },
           skip: skip,
           take: limit,
         });
-
-        result = result.sort((a, b) =>
-          b.savedIds.length +
-          b.likedIds.length -
-          (a.savedIds.length + a.likedIds.length),
-        );
         break;
 
       case 'latest':
@@ -84,6 +83,9 @@ export async function GET(
             name: {
               contains: search,
               mode: 'insensitive',
+            },
+            NOT: {
+              id: currentUser?.id
             }
           },
           orderBy: {

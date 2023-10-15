@@ -32,7 +32,7 @@ export default function useExplore(
 
     const limit = explore === 'People' ? 10 : 3;
 
-    return `/api/explore/${explore}?search=${search}&page=${pageIdx}&limit=${limit}}`;
+    return `/api/explore/${explore}?search=${search}&page=${pageIdx}&limit=${limit}`;
   };
 
   const {

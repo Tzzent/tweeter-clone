@@ -41,7 +41,7 @@ export default function AuthModal({
       signIn('credentials', {
         email,
         password,
-        redirect: true,
+        redirect: false,
       })
         .then((cb) => {
           if (cb?.error) {

@@ -160,6 +160,17 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+
+      if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+
+      return baseUrl;
+    },
   },
   debug: process.env.NODE_ENV === 'development',
   session: {

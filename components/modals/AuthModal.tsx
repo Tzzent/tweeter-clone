@@ -41,7 +41,7 @@ export default function AuthModal({
       signIn('credentials', {
         email,
         password,
-        redirect: false,
+        redirect: true,
       })
         .then((cb) => {
           if (cb?.error) {
@@ -69,7 +69,7 @@ export default function AuthModal({
           signIn('credentials', {
             email,
             password,
-            redirect: false,
+            redirect: true,
           });
           router.refresh();
         })

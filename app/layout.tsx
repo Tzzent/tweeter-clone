@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { Noto_Sans } from 'next/font/google'
 
 import Layout from '@/components/layout/Layout'
-import AuthContext from './context/AuthContext'
-import ToasterContext from './context/ToasterContext'
+import SessionProvider from './providers/SessionProvider'
+import ToasterProvider from './providers/ToasterProvider'
 
 const inter = Noto_Sans({
   subsets: ['latin'],
@@ -24,12 +24,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthContext>
-          <ToasterContext />
+        <SessionProvider>
+          <ToasterProvider />
           <Layout>
             {children}
           </Layout>
-        </AuthContext>
+        </SessionProvider>
       </body>
     </html>
   )

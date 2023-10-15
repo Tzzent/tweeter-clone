@@ -57,7 +57,6 @@ export default function HomePage() {
         lg:col-span-1
         top-16
         h-fit
-        mt-7
         "
       >
         <Trends4u />

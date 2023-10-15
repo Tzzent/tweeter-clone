@@ -17,7 +17,7 @@ export default function useCurrentUser(): UserHookResponse {
     isLoading,
     mutate,
   } = useSWR(`/api/user`, fetcher);
-  console.log('From the useCurrentUser()', data);
+
   return {
     data,
     error,

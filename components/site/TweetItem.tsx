@@ -242,7 +242,7 @@ export default function TweetItem({
           id={tweet.id}
           tweetId={tweet.id}
           ref={inputRef}
-          currentUser={currentUser!}
+          currentUser={currentUser}
           disabled={!canComment}
         />
 
